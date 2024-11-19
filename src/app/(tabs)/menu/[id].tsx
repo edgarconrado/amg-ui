@@ -1,19 +1,94 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import products from '@assets/data/products';
+import { defaultProductImage } from '@/components/ProductListItem';
+import { useState } from 'react';
+import Button from '@/components/Button';
+
+const sizes = ['S', 'M', 'L', 'XL'];
 
 const ProductDetailsScreen = () => {
 
   const { id } = useLocalSearchParams();
 
-  return (
-    <View>
-      <Stack.Screen
-        options={{ title: 'Details ' + id }}
-      />
+  const [selectedSize, setSelectedSize] = useState('M');
 
-      <Text>ProductDetailsScreen for id: {id} </Text>
+  const product = products.find((p) => p.id.toString() === id);
+
+  const addToCar = () => {
+    console.warn("Addign to Car size ", selectedSize );
+    
+  }
+
+  if (!product) {
+    return <Text>Product Not Found</Text>
+  }
+
+  return (
+    <View style={styles.container}>
+      <Stack.Screen
+        options={{ title: 'Details ' + product?.name }}
+      />
+      <Image
+        source={{ uri: product.image || defaultProductImage }}
+        style={styles.image} />
+
+      <Text>Select size</Text>
+      <View style={styles.sizes}>
+        {sizes.map((size) => (
+          <Pressable
+            onPress={() => { setSelectedSize(size) }}
+            style={
+              [styles.size,
+              { backgroundColor: selectedSize === size ? 'gainsboro' : 'white' }
+              ]
+            }
+            key={size}>
+            <Text style={[styles.sizeText, { color: selectedSize === size ? 'black' : 'gray' }]}>{size}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Text style={styles.price}>${product.price} </Text>
+      <Button onPress={ addToCar } text='Add to Cart' />
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'white',
+    flex: 1,
+    padding: 10
+
+  },
+  image: {
+    width: '100%',
+    aspectRatio: 1
+  },
+  price: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 'auto'
+  },
+  sizes: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10
+  },
+  size: {
+    backgroundColor: 'gainsboro',
+    width: 50,
+    aspectRatio: 1,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  sizeText: {
+    fontSize: 20,
+    fontWeight: '500',
+    textAlign: 'center'
+  },
+})
 
 export default ProductDetailsScreen
