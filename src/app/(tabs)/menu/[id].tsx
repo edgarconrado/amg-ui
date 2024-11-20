@@ -1,23 +1,32 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import products from '@assets/data/products';
-import { defaultProductImage } from '@/components/ProductListItem';
-import { useState } from 'react';
 import Button from '@/components/Button';
+import { defaultProductImage } from '@/components/ProductListItem';
+import { useCart } from '@/providers/CartProviders';
+import products from '@assets/data/products';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ProductSize } from '@/types';
 
 const sizes = ['S', 'M', 'L', 'XL'];
 
 const ProductDetailsScreen = () => {
 
   const { id } = useLocalSearchParams();
+  const { addItem } = useCart();
 
-  const [selectedSize, setSelectedSize] = useState('M');
+  const router = useRouter();
+
+  const [selectedSize, setSelectedSize] = useState<ProductSize>('M');
 
   const product = products.find((p) => p.id.toString() === id);
 
   const addToCar = () => {
-    console.warn("Addign to Car size ", selectedSize );
-    
+    if (!product) {
+      return;
+    }
+    addItem(product, selectedSize);
+    router.push('/cart');
+
   }
 
   if (!product) {
@@ -50,7 +59,7 @@ const ProductDetailsScreen = () => {
       </View>
 
       <Text style={styles.price}>${product.price} </Text>
-      <Button onPress={ addToCar } text='Add to Cart' />
+      <Button onPress={addToCar} text='Add to Cart' />
     </View>
   )
 }

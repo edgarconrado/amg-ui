@@ -5,13 +5,13 @@
    price: number;
  };
 
-export type PizzaSize = 'S' | 'M' | 'L' | 'XL';
+export type ProductSize = 'S' | 'M' | 'L' | 'XL';
 
 export type CartItem = {
   id: string;
   product: Product;
   product_id: number;
-  size: PizzaSize;
+  size: ProductSize;
   quantity: number;
 };
 
@@ -39,7 +39,7 @@ export type OrderItem = {
   product_id: number;
   products: Product;
   order_id: number;
-  size: PizzaSize;
+  size: ProductSize;
   quantity: number;
 };
 
