@@ -1,11 +1,11 @@
 import Button from '@/components/Button';
 import { defaultProductImage } from '@/components/ProductListItem';
 import { useCart } from '@/providers/CartProviders';
+import { ProductSize } from '@/types';
 import products from '@assets/data/products';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { ProductSize } from '@/types';
 
 const sizes = ['S', 'M', 'L', 'XL'];
 
@@ -58,6 +58,13 @@ const ProductDetailsScreen = () => {
         ))}
       </View>
 
+      <Text>Description</Text>
+      <View style={styles.descriptionContainer}>
+        <Text style={styles.description}>
+          {product.description}
+        </Text>
+      </View>
+
       <Text style={styles.price}>${product.price} </Text>
       <Button onPress={addToCar} text='Add to Cart' />
     </View>
@@ -98,6 +105,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center'
   },
+  descriptionContainer: {
+    justifyContent: 'space-around',
+    marginVertical: 10
+  },
+  description: {
+    fontSize: 20,
+    fontWeight: '500',
+    textAlign: 'left'
+
+  }
 })
 
 export default ProductDetailsScreen
