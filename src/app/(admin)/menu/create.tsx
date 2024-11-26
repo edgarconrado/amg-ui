@@ -1,9 +1,11 @@
+import { useDeleteProduct, useInsertProduct, useProduct, useUpdateProduct } from '@/api/products';
 import Button from '@/components/Button';
 import { defaultProductImage } from '@/components/ProductListItem';
 import Colors from '@/constants/Colors';
+import { useEventListener } from 'expo';
 import * as ImagePicker from 'expo-image-picker';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
+import { router, Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 
 
@@ -15,8 +17,25 @@ const CreateProductScreen = () => {
     const [errors, setErrors] = useState('');
     const [image, setImage] = useState<string | null>(null);
 
-    const { id } = useLocalSearchParams();
-    const isUpdating = !!id;
+    const { id: idString } = useLocalSearchParams();
+    const id = parseFloat(typeof idString === 'string' ? idString : idString?.[0]);
+    const isUpdating = !!idString;
+
+    const { mutate: insertProduct } = useInsertProduct();
+    const { mutate: updateProduct } = useUpdateProduct();
+    const { data: updatingproduct } = useProduct(id);
+    const { mutate: deleteProduct } = useDeleteProduct();
+
+    const router = useRouter();
+
+    useEffect(() => {
+        if (updatingproduct) {
+            setName(updatingproduct.name);
+            setPrice(updatingproduct.price.toString());
+            setImage(updatingproduct.image);
+        }
+    }, [updateProduct])
+
 
     const validateInput = () => {
         setErrors('');
@@ -37,30 +56,48 @@ const CreateProductScreen = () => {
 
     const onSubmit = () => {
         if (isUpdating)
-            onUpdate();    
-         else 
+            onUpdate();
+        else
             onCreate();
     };
 
     const onCreate = () => {
-        if(!validateInput()) {
+        if (!validateInput()) {
             return;
         }
         console.warn('Creatin Product', name);
-        resetField();
+
+        insertProduct({ name, price: parseFloat(price), image }, {
+            onSuccess: () => {
+                resetField();
+                router.back();
+            }
+        })
+
     };
 
     const onUpdate = () => {
-        if(!validateInput()) {
+        if (!validateInput()) {
             return;
         }
-        console.warn('Updating Product', name);
-        resetField();
+        updateProduct(
+            { id, name, price: parseFloat(price), image },
+            {
+                onSuccess: () => {
+                    resetField();
+                    router.back();
+                }
+            });
     };
 
     const onDelete = () => {
-        console.log('Delete!!!!!!');
-        
+        deleteProduct( id, {
+            onSuccess: () => {
+                resetField();
+                router.replace('/(admin)');
+            },
+        });
+
     }
     const confirmDelete = () => {
         Alert.alert('Confirmar', '¿Está seguro de elminar este Producto?', [
@@ -80,30 +117,28 @@ const CreateProductScreen = () => {
         setPrice('');
         setDescription('');
         setImage('');
-        router.back();
+
     };
 
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images'],
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
         });
-    
-        console.log(result);
-    
+
         if (!result.canceled) {
-          setImage(result.assets[0].uri);
+            setImage(result.assets[0].uri);
         }
-      };
+    };
 
     return (
         <View style={styles.container}>
 
-            <Stack.Screen options={{title: isUpdating ? 'Update Product' : 'Create Product'}} />
-            
+            <Stack.Screen options={{ title: isUpdating ? 'Update Product' : 'Create Product' }} />
+
             <Image source={{ uri: image || defaultProductImage }} style={styles.image} />
             <Text onPress={pickImage} style={styles.textButton}>Select Image</Text>
 
@@ -134,8 +169,8 @@ const CreateProductScreen = () => {
                 style={[styles.input, styles.inputArea]}
             />
 
-            <Text style={{ color: 'red'}}>{errors}</Text>
-            <Button onPress={onSubmit} text={ isUpdating ? 'Update' : 'Create'} />
+            <Text style={{ color: 'red' }}>{errors}</Text>
+            <Button onPress={onSubmit} text={isUpdating ? 'Update' : 'Create'} />
             {isUpdating && <Text onPress={confirmDelete} style={styles.textButton}>Delete</Text>}
         </View>
     )
@@ -165,9 +200,9 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top'
     },
     image: {
-       width: '50%',
-       aspectRatio: 1,
-       alignSelf: 'center'
+        width: '50%',
+        aspectRatio: 1,
+        alignSelf: 'center'
     },
     textButton: {
         alignSelf: 'center',

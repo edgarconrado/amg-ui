@@ -16,9 +16,9 @@ const index = () => {
     return <Redirect href={'/sign-in'} />
   }
 
-  if(!isAdmin) {
-    return <Redirect href={'/(user)'} />
-  }
+  // if(!isAdmin) {
+  //   return <Redirect href={'/(user)'} />
+  // }
   
 
   return (
