@@ -1,4 +1,4 @@
-import { useOrderDetails } from "@/api/orders";
+import { useOrderDetails, useUpdateOrder } from "@/api/orders";
 import OrderItemListItem from "@/components/OrderItemListItem";
 import OrderListItem from "@/components/OrderListItem";
 import Colors from "@/constants/Colors";
@@ -12,16 +12,22 @@ export default function OrderDetailsScreen() {
     const id = parseFloat(typeof idString === 'string' ? idString : idString[0]);
 
     const { data: order, isLoading, error } = useOrderDetails(id);
+    const {mutate: updateOrder } = useUpdateOrder();
+
+    const updateStatus = (status) => {
+        updateOrder({
+            id: id,
+            updatedField: { status }
+        })
+    }
 
     if (isLoading) {
         return <ActivityIndicator />;
     }
 
-    if (error) {
+    if (error || !order) {
         return <Text>Failed to fetch the product</Text>
     }
-
-    console.log(order);
 
     return (
         <View style={{ padding: 10, gap: 20, flex: 1 }}>
@@ -39,7 +45,7 @@ export default function OrderDetailsScreen() {
                             {OrderStatusList.map((status) => (
                                 <Pressable
                                     key={status}
-                                    onPress={() => console.warn('Update status')}
+                                    onPress={() => updateStatus(status)}
                                     style={{
                                         borderColor: Colors.light.tint,
                                         borderWidth: 1,
