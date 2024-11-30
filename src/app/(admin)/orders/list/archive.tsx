@@ -1,8 +1,15 @@
+import { useAdminOrderList } from "@/api/orders";
 import OrderListItem from "@/components/OrderListItem";
-import orders from '@assets/data/orders';
 import { FlatList } from "react-native";
 
 export default function OrdersScreen() {
+
+    const {
+        data: orders, 
+        isLoading, 
+        error
+    } = useAdminOrderList({archived: true})
+
     return (
         <FlatList
             data={orders}
