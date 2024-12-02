@@ -36,7 +36,7 @@ export default function TabLayout() {
         name='index'
         options={{ href: null }}
       />
-      
+
       <Tabs.Screen
         name="menu"
         options={{
@@ -51,6 +51,13 @@ export default function TabLayout() {
           title: 'Orders',
           headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
     </Tabs>

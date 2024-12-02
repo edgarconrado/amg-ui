@@ -2,11 +2,15 @@ import { useDeleteProduct, useInsertProduct, useProduct, useUpdateProduct } from
 import Button from '@/components/Button';
 import { defaultProductImage } from '@/components/ProductListItem';
 import Colors from '@/constants/Colors';
-import { useEventListener } from 'expo';
 import * as ImagePicker from 'expo-image-picker';
-import { router, Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import { randomUUID } from 'expo-crypto';
+import { supabase } from '@/lib/supabase';
+import { decode } from 'base64-arraybuffer';
+
 
 
 const CreateProductScreen = () => {
@@ -61,13 +65,14 @@ const CreateProductScreen = () => {
             onCreate();
     };
 
-    const onCreate = () => {
+    const onCreate = async () => {
         if (!validateInput()) {
             return;
         }
-        console.warn('Creatin Product', name);
+        
+        const imagePath = await uploadImage();
 
-        insertProduct({ name, price: parseFloat(price), image }, {
+        insertProduct({ name, price: parseFloat(price), image: imagePath }, {
             onSuccess: () => {
                 resetField();
                 router.back();
@@ -76,10 +81,13 @@ const CreateProductScreen = () => {
 
     };
 
-    const onUpdate = () => {
+    const onUpdate = async () => {
         if (!validateInput()) {
             return;
         }
+
+        const imagePath = await uploadImage();
+        
         updateProduct(
             { id, name, price: parseFloat(price), image },
             {
@@ -112,6 +120,25 @@ const CreateProductScreen = () => {
         ]);
     };
 
+    const uploadImage = async () => {
+        if (!image?.startsWith('file://')) {
+          return;
+        }
+      
+        const base64 = await FileSystem.readAsStringAsync(image, {
+          encoding: 'base64',
+        });
+        const filePath = `${randomUUID()}.png`;
+        const contentType = 'image/png';
+        const { data, error } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, decode(base64), { contentType });
+      
+        if (data) {
+          return data.path;
+        }
+      };
+      
     const resetField = () => {
         setName('');
         setPrice('');

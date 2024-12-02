@@ -1,4 +1,5 @@
 import { useOrderDetails, useUpdateOrder } from "@/api/orders";
+import { useUpdateOrderSubscription } from "@/api/orders/subscriptions";
 import OrderItemListItem from "@/components/OrderItemListItem";
 import OrderListItem from "@/components/OrderListItem";
 import Colors from "@/constants/Colors";
@@ -12,14 +13,16 @@ export default function OrderDetailsScreen() {
     const id = parseFloat(typeof idString === 'string' ? idString : idString[0]);
 
     const { data: order, isLoading, error } = useOrderDetails(id);
-    const {mutate: updateOrder } = useUpdateOrder();
+    useUpdateOrderSubscription(id);
 
-    const updateStatus = (status) => {
-        updateOrder({
-            id: id,
-            updatedField: { status }
-        })
-    }
+    // const {mutate: updateOrder } = useUpdateOrder();
+
+    // const updateStatus = (status) => {
+    //     updateOrder({
+    //         id: id,
+    //         updatedField: { status }
+    //     })
+    // }
 
     if (isLoading) {
         return <ActivityIndicator />;

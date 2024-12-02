@@ -1,13 +1,14 @@
 import { useProduct } from '@/api/products';
 import Button from '@/components/Button';
 import { defaultProductImage } from '@/components/ProductListItem';
+import RemoteImage from '@/components/RemoteImage';
 import Colors from '@/constants/Colors';
 import { useCart } from '@/providers/CartProviders';
 import { ProductSize } from '@/types';
 import { FontAwesome } from '@expo/vector-icons';
 import { Link, Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const sizes = ['S', 'M', 'L', 'XL'];
 
@@ -65,12 +66,12 @@ const ProductDetailsScreen = () => {
       <Stack.Screen
         options={{ title: 'Details ' + product?.name }}
       />
-      <Image
-        source={{ uri: product.image || defaultProductImage }}
-        style={styles.image}
-      />
+      <RemoteImage
+        path={product?.image}
+        fallback={defaultProductImage}
+        style={styles.image} />
 
-      <Text style={styles.title}>{product.name} </Text>
+      <Text style={styles.title}>{product?.name} </Text>
 
       <Text>Description</Text>
       <View style={styles.descriptionContainer}>

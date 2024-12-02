@@ -1,4 +1,5 @@
 import { useAdminOrderList } from "@/api/orders";
+import { useInsertOrderSubscription } from "@/api/orders/subscriptions";
 import OrderListItem from "@/components/OrderListItem";
 import { supabase } from "@/lib/supabase";
 import orders from '@assets/data/orders';
@@ -14,6 +15,7 @@ export default function OrdersScreen() {
         error 
     } = useAdminOrderList({ archived: false });
 
+    useInsertOrderSubscription();
 
     if (isLoading) {
         return <ActivityIndicator />;

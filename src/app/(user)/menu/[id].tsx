@@ -1,11 +1,12 @@
 import { useProduct } from '@/api/products';
 import Button from '@/components/Button';
 import { defaultProductImage } from '@/components/ProductListItem';
+import RemoteImage from '@/components/RemoteImage';
 import { useCart } from '@/providers/CartProviders';
 import { ProductSize } from '@/types';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const sizes = ['S', 'M', 'L', 'XL'];
 
@@ -42,8 +43,9 @@ const ProductDetailsScreen = () => {
       <Stack.Screen
         options={{ title: 'Details ' + product?.name }}
       />
-      <Image
-        source={{ uri: product.image || defaultProductImage }}
+      <RemoteImage
+        path={product?.image}
+        fallback={defaultProductImage}
         style={styles.image} />
 
       <Text>Select size</Text>
